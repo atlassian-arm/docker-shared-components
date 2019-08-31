@@ -3,9 +3,9 @@
 # -------------------------------------------------------------------------------------
 
 
-# Set up app info
-APP_NAME="$(set | grep "_INSTALL_DIR" | awk -F'_' '{print $1}')"
-APP_HOME_VAR="${APP_NAME}_HOME"
-APP_HOME="${!APP_HOME_VAR}"
-
-APP_PID=$(jcmd | grep "org.apache.catalina.startup.Bootstrap" | awk '{print $1}')
+# Set valid getopt options
+function set_valid_options {
+    OPTS=$(getopt -o "$1" --long "$2" -n 'parse-options' -- "$@")
+    if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
+    eval set -- "$OPTS"
+}

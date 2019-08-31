@@ -8,44 +8,56 @@
 #
 #     $ docker exec -it my_jira /opt/atlassian/support/heap-dump.sh
 #
+# A heap dump will be written to $APP_HOME/heap.bin. If a file already exists at this
+# location, use -f/--force to overwrite the existing heap dump file.
+#
 # -------------------------------------------------------------------------------------
 
 
 set -euo pipefail
 
 
+# Set up common vars like APP_NAME, APP_HOME, APP_PID
 SCRIPT_DIR=$(dirname "$0")
 source "${SCRIPT_DIR}/common.sh"
+source "${SCRIPT_DIR}/utils.sh"
 
-OUT_FILE="${APP_HOME}/heap.bin"
+# Set up script opts
+set_valid_options "f" "force"
+
+# Set defaults
+OVERWRITE=false
+
+# Parse opts
+while true; do
+  case "${1-}" in
+    -f | --force ) OVERWRITE=true; shift ;;
+    * ) break ;;
+  esac
+done
+
+
 
 echo "Atlassian heap dump collector"
 echo "App:       ${APP_NAME}"
 echo "Run user:  ${RUN_USER}"
 echo
 
+OUT_FILE="${APP_HOME}/heap.bin"
+
 if [[ -f "${OUT_FILE}" ]]; then
     echo "A previous heap dump already exists at ${OUT_FILE}."
-    if [[ ! -t 1 ]]; then
-        echo "This script must be run interactively to overwrite an existing heap dump"
-        echo "If running in docker, use the '-it' flag to run scripts in interactive mode:"
-        echo
-        echo "    $ docker exec -it my_container ${0}"
-        exit
-    fi
-    echo "Overwrite it and continue? (y/n)"
-    read ANSWER
-    if [[ ${ANSWER} =~ ^[Yy] ]]; then
+    if [[ "${OVERWRITE}" == "true" ]]; then
         echo "Removing previous heap dump file"
+        echo
         rm "${OUT_FILE}"
     else
-        echo "Exiting"
+        echo "Use -f/--force to overwrite the existing heap dump."
+        exit
     fi
 fi
 
 echo "Generating heap dump"
-
-su jira -c "jcmd ${APP_PID} GC.heap_dump -all ${OUT_FILE}"
-
+su jira -c "jcmd ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null"
 echo
 echo "Heap dump has been written to ${OUT_FILE}"
