@@ -37,12 +37,12 @@ NO_TOP="false"
 
 # Parse opts
 while true; do
-  case "${1-}" in
-    -c | --count )      COUNT="$2"; shift 2 ;;
-    -i | --interval )   INTERVAL="$2"; shift 2 ;;
-    -n | --no-top )     NO_TOP="true"; shift ;;
-    * ) break ;;
-  esac
+    case "${1-}" in
+        -c | --count )      COUNT="$2"; shift 2 ;;
+        -i | --interval )   INTERVAL="$2"; shift 2 ;;
+        -n | --no-top )     NO_TOP="true"; shift ;;
+        * ) break ;;
+    esac
 done
 
 
@@ -63,7 +63,7 @@ for i in $(seq ${COUNT}); do
     if [[ "${NO_TOP}" == "false" ]]; then
         top -b -H -p $APP_PID -n 1 > ${OUT_DIR}/${APP_NAME}_CPU_USAGE.`date +%s`.txt
     fi
-    su ${RUN_USER} -c "${JAVA_HOME}/bin/jcmd ${APP_PID} Thread.print" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
+    su ${RUN_USER} -c "${JCMD} ${APP_PID} Thread.print" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
     if [[ ! "${i}" == "${COUNT}" ]]; then
         sleep ${INTERVAL}
     fi
