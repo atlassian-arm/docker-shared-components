@@ -52,7 +52,9 @@ echo "App:       ${APP_NAME}"
 echo "Run user:  ${RUN_USER}"
 echo
 echo "${COUNT} thread dumps will be generated at a ${INTERVAL} second interval"
-echo "top 'Threads-mode' output will also be collected for ${APP_NAME} with every thread dump"
+if [[ "${NO_TOP}" == "false" ]]; then
+    echo "top 'Threads-mode' output will also be collected for ${APP_NAME} with every thread dump"
+fi
 echo
 
 OUT_DIR="${APP_HOME}/thread_dumps_$(date +'%Y-%m-%d_%H-%M-%S')"
