@@ -14,7 +14,8 @@
 #
 #     $ docker exec my_jira /opt/atlassian/support/thread-dumps.sh -c 20 -i 3
 #
-# Note: output from top run in 'Thread-mode' is also captured with each thread dump
+# Note: By default this script will capture output from top run in 'Thread-mode'. This can
+# be disabled by passing --no-top
 # -------------------------------------------------------------------------------------
 
 
@@ -27,17 +28,19 @@ source "${SCRIPT_DIR}/common.sh"
 source "${SCRIPT_DIR}/utils.sh"
 
 # Set up script opts
-set_valid_options "c:i:" "count:,interval:"
+set_valid_options "c:i:n" "count:,interval:,no-top"
 
 # Set defaults
-COUNT=10
-INTERVAL=5
+COUNT="10"
+INTERVAL="5"
+NO_TOP="false"
 
 # Parse opts
 while true; do
   case "${1-}" in
     -c | --count )      COUNT="$2"; shift 2 ;;
     -i | --interval )   INTERVAL="$2"; shift 2 ;;
+    -n | --no-top )     NO_TOP="true"; shift ;;
     * ) break ;;
   esac
 done
@@ -57,8 +60,10 @@ mkdir $OUT_DIR
 
 for i in $(seq ${COUNT}); do
     echo "Generating thread dump ${i} of ${COUNT}"
-    top -b -H -p $APP_PID -n 1 > ${OUT_DIR}/${APP_NAME}_CPU_USAGE.`date +%s`.txt
-    su ${RUN_USER} -c "jcmd ${APP_PID} Thread.print" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
+    if [[ "${NO_TOP}" == "false" ]]; then
+        top -b -H -p $APP_PID -n 1 > ${OUT_DIR}/${APP_NAME}_CPU_USAGE.`date +%s`.txt
+    fi
+    su ${RUN_USER} -c "${JAVA_HOME}/bin/jcmd ${APP_PID} Thread.print" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
     if [[ ! "${i}" == "${COUNT}" ]]; then
         sleep ${INTERVAL}
     fi

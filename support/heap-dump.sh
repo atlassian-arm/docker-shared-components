@@ -58,6 +58,6 @@ if [[ -f "${OUT_FILE}" ]]; then
 fi
 
 echo "Generating heap dump"
-su jira -c "jcmd ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null"
+su jira -c "${JAVA_HOME}/bin/jcmd ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null"
 echo
 echo "Heap dump has been written to ${OUT_FILE}"

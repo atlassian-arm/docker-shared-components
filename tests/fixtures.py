@@ -6,7 +6,7 @@ import docker
 import requests
 
 
-MAC_PRODUCT_KEY = os.environ.get('MAC_PRODUCT_KEY')
+MAC_PRODUCT_KEY = os.environ.get('MAC_PRODUCT_KEY') or 'docker-testapp'
 DOCKER_VERSION_ARG = os.environ.get('DOCKER_VERSION_ARG')
 DOCKERFILES = (os.environ.get('DOCKERFILES') or 'Dockerfile').split(',')
 
@@ -25,12 +25,15 @@ def docker_cli():
 # This fixture returns a built image for each Dockerfile
 @pytest.fixture(scope='module', params=DOCKERFILES)
 def image(request):
-    r = requests.get(f'https://marketplace.atlassian.com/rest/2/products/key/{MAC_PRODUCT_KEY}/versions/latest')
-    version = r.json().get('name')
-    buildargs = {DOCKER_VERSION_ARG: version}
+    buildargs = {}
+    if MAC_PRODUCT_KEY != 'docker-testapp':
+        r = requests.get(f'https://marketplace.atlassian.com/rest/2/products/key/{MAC_PRODUCT_KEY}/versions/latest')
+        version = r.json().get('name')
+        buildargs[DOCKER_VERSION_ARG] = version
     docker_cli = docker.from_env()
+    tag = ''.join(ch for ch in request.param.lower() if ch.isalnum())
     image = docker_cli.images.build(path='.',
-                                    tag=f'{MAC_PRODUCT_KEY}:{request.param.lower()}',
+                                    tag=f'{MAC_PRODUCT_KEY}:{tag}',
                                     buildargs=buildargs,
                                     dockerfile=request.param,
                                     rm=True)[0]

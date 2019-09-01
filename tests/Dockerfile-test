@@ -1,0 +1,3 @@
+FROM atlassian/jira-software:latest
+
+COPY support                    /opt/atlassian/support
