@@ -7,8 +7,8 @@ import testinfra
 
 # Run an image and wrap it in a TestInfra host for convenience.
 # FIXME: There's probably a way to turn this into a fixture with parameters.
-def run_image(docker_cli, image, environment={}, ports={}):
-    container = docker_cli.containers.run(image, environment=environment, ports=ports, detach=True)
+def run_image(docker_cli, image, **kwargs):
+    container = docker_cli.containers.run(image, detach=True, **kwargs)
     return testinfra.get_host("docker://"+container.id)
 
 # TestInfra's process command doesn't seem to work for arg matching
