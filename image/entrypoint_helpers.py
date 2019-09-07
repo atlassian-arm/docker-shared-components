@@ -45,9 +45,13 @@ def gen_cfg(tmpl, target, user='root', group='root', mode=0o644, overwrite=True)
 
     logging.info(f"Generating {target} from template {tmpl}")
     cfg = jenv.get_template(tmpl).render(env)
-    with open(target, 'w') as fd:
-        fd.write(cfg)
-    set_perms(target, user, group, mode)
+    try:
+        with open(target, 'w') as fd:
+            fd.write(cfg)
+    except PermissionError:
+        logging.warning(f"Container not started as root. Bootstrapping skipped for '{target}'")
+    else:
+        set_perms(target, user, group, mode)
 
 def gen_container_id():
     env['uuid'] = uuid.uuid4().hex
@@ -69,8 +73,9 @@ def start_app(start_cmd, home_dir, name='app'):
         start_cmd = ' '.join([start_cmd] + sys.argv[1:])
         args = [cmd, env['run_user'], '-c', start_cmd]
     else:
-        cmd = start_cmd
-        args = [start_cmd] + sys.argv[1:]
+        start_cmd = start_cmd.split()
+        cmd = start_cmd[0]
+        args = start_cmd[1:] + sys.argv[1:]
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
