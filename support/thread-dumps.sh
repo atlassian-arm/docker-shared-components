@@ -2,7 +2,7 @@
 
 # -------------------------------------------------------------------------------------
 # Thread dumps collector for containerized Atlassian applications
-# 
+#
 # This script can be run via `docker exec` to easily trigger the collection of thread
 # dumps from the containerized application. For example:
 #
@@ -65,7 +65,7 @@ for i in $(seq ${COUNT}); do
     if [[ "${NO_TOP}" == "false" ]]; then
         top -b -H -p $APP_PID -n 1 > ${OUT_DIR}/${APP_NAME}_CPU_USAGE.`date +%s`.txt
     fi
-    su "${RUN_USER}" -c "${JCMD} ${APP_PID} Thread.print" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
+    su "${RUN_USER}" -c "${JCMD} ${APP_PID} Thread.print -l" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
     if [[ ! "${i}" == "${COUNT}" ]]; then
         sleep ${INTERVAL}
     fi
