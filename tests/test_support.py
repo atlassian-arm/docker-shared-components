@@ -14,42 +14,42 @@ def get_bootstrap_proc(container):
     return proc
 
 
-def test_thread_dumps(docker_cli, image):
+def test_thread_dumps(docker_cli, image, user):
     COUNT = 3
     INTERVAL = 1
-    container = run_image(docker_cli, image)
+    container = run_image(docker_cli, image, user=user)
     wait_for_proc(container, get_bootstrap_proc(container))
     
     thread_cmd = f'/opt/atlassian/support/thread-dumps.sh --count {COUNT} --interval {INTERVAL}'
     container.run(thread_cmd)
     
-    find_thread_cmd = f'find {get_app_home(container)} -wholename "*thread_dumps_*/*_THREADS*"'
+    find_thread_cmd = f'find {get_app_home(container)} -name "*_THREADS.*.txt"'
     thread_dumps = container.run(find_thread_cmd).stdout.splitlines()
     assert len(thread_dumps) == 3
     
-    find_top_cmd = f'find {get_app_home(container)} -wholename "*thread_dumps_*/*CPU_USAGE*"'
+    find_top_cmd = f'find {get_app_home(container)} -name "*_CPU_USAGE.*.txt"'
     top_dumps = container.run(find_top_cmd).stdout.splitlines()
     assert len(top_dumps) == 3
 
-def test_thread_dumps_no_top(docker_cli, image):
+def test_thread_dumps_no_top(docker_cli, image, user):
     COUNT = 3
     INTERVAL = 1
-    container = run_image(docker_cli, image)
+    container = run_image(docker_cli, image, user=user)
     wait_for_proc(container, get_bootstrap_proc(container))
     
     thread_cmd = f'/opt/atlassian/support/thread-dumps.sh --no-top --count {COUNT} --interval {INTERVAL}'
     container.run(thread_cmd)
     
-    find_thread_cmd = f'find {get_app_home(container)} -wholename "*thread_dumps_*/*_THREADS*"'
+    find_thread_cmd = f'find {get_app_home(container)} -name "*_THREADS.*.txt"'
     thread_dumps = container.run(find_thread_cmd).stdout.splitlines()
     assert len(thread_dumps) == 3
     
-    find_top_cmd = f'find {get_app_home(container)} -wholename "*thread_dumps_*/*CPU_USAGE*"'
+    find_top_cmd = f'find {get_app_home(container)} -name "*_CPU_USAGE.*.txt"'
     top_dumps = container.run(find_top_cmd).stdout.splitlines()
     assert len(top_dumps) == 0
 
-def test_heap_dump(docker_cli, image):
-    container = run_image(docker_cli, image)
+def test_heap_dump(docker_cli, image, user):
+    container = run_image(docker_cli, image, user=user)
     wait_for_proc(container, get_bootstrap_proc(container))
     
     heap_cmd = f'/opt/atlassian/support/heap-dump.sh'
@@ -59,8 +59,8 @@ def test_heap_dump(docker_cli, image):
     heap_dump = container.run(ls_cmd).stdout.splitlines()
     assert len(heap_dump) == 1
 
-def test_heap_dump_overwrite_false(docker_cli, image):
-    container = run_image(docker_cli, image)
+def test_heap_dump_overwrite_false(docker_cli, image, user):
+    container = run_image(docker_cli, image, user=user)
     wait_for_proc(container, get_bootstrap_proc(container))
     
     heap_cmd = f'/opt/atlassian/support/heap-dump.sh'
@@ -72,8 +72,8 @@ def test_heap_dump_overwrite_false(docker_cli, image):
     heap_dump_2 = container.run(ls_cmd).stdout.splitlines()
     assert heap_dump_1 == heap_dump_2
 
-def test_heap_dump_overwrite_true(docker_cli, image):
-    container = run_image(docker_cli, image)
+def test_heap_dump_overwrite_true(docker_cli, image, user):
+    container = run_image(docker_cli, image, user=user)
     wait_for_proc(container, get_bootstrap_proc(container))
     
     heap_cmd = f'/opt/atlassian/support/heap-dump.sh --force'
@@ -84,5 +84,4 @@ def test_heap_dump_overwrite_true(docker_cli, image):
     container.run(heap_cmd)
     heap_dump_2 = container.run(ls_cmd).stdout.splitlines()
     assert heap_dump_1 != heap_dump_2
-    
     
