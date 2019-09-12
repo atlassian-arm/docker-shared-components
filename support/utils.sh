@@ -12,3 +12,14 @@ function set_valid_options {
     fi
     eval set -- "$OPTS"
 }
+
+
+
+# Run command(s)
+function run_as_runuser {
+    if [ $(id -u) = 0 ]; then
+        su "${RUN_USER}" -c '"$@"' -- argv0 "$@"
+    else
+        $@
+    fi
+}

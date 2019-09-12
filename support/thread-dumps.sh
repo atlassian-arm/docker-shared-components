@@ -57,15 +57,15 @@ if [[ "${NO_TOP}" == "false" ]]; then
 fi
 echo
 
-OUT_DIR="${APP_HOME}/thread_dumps_$(date +'%Y-%m-%d_%H-%M-%S')"
-mkdir $OUT_DIR
+OUT_DIR="${APP_HOME}/thread_dumps/$(date +'%Y-%m-%d_%H-%M-%S')"
+run_as_runuser mkdir -p ${OUT_DIR}
 
 for i in $(seq ${COUNT}); do
     echo "Generating thread dump ${i} of ${COUNT}"
     if [[ "${NO_TOP}" == "false" ]]; then
-        top -b -H -p $APP_PID -n 1 > ${OUT_DIR}/${APP_NAME}_CPU_USAGE.`date +%s`.txt
+        run_as_runuser top -b -H -p $APP_PID -n 1 > "${OUT_DIR}/${APP_NAME}_CPU_USAGE.$(date +%s).txt"
     fi
-    su "${RUN_USER}" -c "${JCMD} ${APP_PID} Thread.print -l" > ${OUT_DIR}/${APP_NAME}_THREADS.`date +%s`.txt
+    run_as_runuser ${JCMD} ${APP_PID} Thread.print -l > "${OUT_DIR}/${APP_NAME}_THREADS.$(date +%s).txt"
     if [[ ! "${i}" == "${COUNT}" ]]; then
         sleep ${INTERVAL}
     fi

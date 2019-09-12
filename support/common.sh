@@ -22,4 +22,3 @@ case "${APP_NAME}" in
 esac
 
 APP_PID=$(${JCMD} | grep "${BOOTSTRAP_PROC}" | awk '{print $1}')
-

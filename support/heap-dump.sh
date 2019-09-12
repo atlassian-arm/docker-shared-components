@@ -2,7 +2,7 @@
 
 # -------------------------------------------------------------------------------------
 # Heap collector for containerized Atlassian applications
-# 
+#
 # This script can be run via `docker exec` to easily trigger the collection of a heap
 # dump from the containerized application. For example:
 #
@@ -58,6 +58,6 @@ if [[ -f "${OUT_FILE}" ]]; then
 fi
 
 echo "Generating heap dump"
-su "${RUN_USER}" -c "${JCMD} ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null"
+run_as_runuser ${JCMD} ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null
 echo
 echo "Heap dump has been written to ${OUT_FILE}"
