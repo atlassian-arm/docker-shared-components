@@ -14,7 +14,6 @@ function set_valid_options {
 }
 
 
-
 # Run command(s)
 function run_as_runuser {
     if [ $(id -u) = 0 ]; then

@@ -26,12 +26,12 @@ source "${SCRIPT_DIR}/utils.sh"
 set_valid_options "f" "force"
 
 # Set defaults
-OVERWRITE=false
+OVERWRITE="false"
 
 # Parse opts
 while true; do
     case "${1-}" in
-        -f | --force ) OVERWRITE=true; shift ;;
+        -f | --force ) OVERWRITE="true"; shift ;;
         * ) break ;;
     esac
 done
