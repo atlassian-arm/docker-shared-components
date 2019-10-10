@@ -60,15 +60,23 @@ def gen_container_id():
         if lcid != '':
             env['local_container_id'] = lcid
 
+def str2bool(v):
+    if str(v).lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    return False
+
 
 ######################################################################
 # Start App as the correct user
 
 def start_app(start_cmd, home_dir, name='app'):
     if os.getuid() == 0:
-        logging.info(f"User is currently root. Will change directory ownership to {env['run_user']} then downgrade permissions")
-        set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
-
+        if str2bool(env['set_permissions'] or True):
+            set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
+            logging.info(f"User is currently root. Will change directory ownership and downgrade permissions to to {env['run_user']}")
+        else:
+            logging.info(f"User is currently root. Will downgrade permissions to to {env['run_user']}")
+        
         cmd = '/bin/su'
         start_cmd = ' '.join([start_cmd] + sys.argv[1:])
         args = [cmd, env['run_user'], '-c', start_cmd]
