@@ -78,12 +78,10 @@ def start_app(start_cmd, home_dir, name='app'):
             logging.info(f"User is currently root. Will downgrade permissions to to {env['run_user']}")
         
         cmd = '/bin/su'
-        start_cmd = ' '.join([start_cmd] + sys.argv[1:])
         args = [cmd, env['run_user'], '-c', start_cmd]
     else:
-        start_cmd = start_cmd.split()
-        cmd = start_cmd[0]
-        args = start_cmd[1:] + sys.argv[1:]
+        cmd = '/bin/sh'
+        args = [cmd, '-c', start_cmd]
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
