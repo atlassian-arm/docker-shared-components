@@ -10,6 +10,8 @@ JCMD="${JAVA_HOME}/bin/jcmd"
 APP_NAME="$(set | grep '_INSTALL_DIR' | awk -F'_' '{print $1}')"
 APP_HOME_VAR="${APP_NAME}_HOME"
 APP_HOME="${!APP_HOME_VAR}"
+APP_INSTALL_DIR_VAR="${APP_NAME}_INSTALL_DIR"
+APP_INSTALL_DIR="${!APP_INSTALL_DIR_VAR}"
 
 # Get app PID
 case "${APP_NAME}" in

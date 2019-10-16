@@ -5,6 +5,22 @@ import requests
 import testinfra
 
 
+# Helper functions to get config values from support scripts
+def get_app_home(container):
+    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${APP_HOME}'"
+    home = container.check_output(cmd)
+    return home
+
+def get_app_install_dir(container):
+    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${APP_INSTALL_DIR}'"
+    home = container.check_output(cmd)
+    return home
+
+def get_bootstrap_proc(container):
+    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${BOOTSTRAP_PROC}'"
+    proc = container.check_output(cmd)
+    return proc
+
 # Run an image and wrap it in a TestInfra host for convenience.
 # FIXME: There's probably a way to turn this into a fixture with parameters.
 def run_image(docker_cli, image, **kwargs):

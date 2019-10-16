@@ -1,17 +1,6 @@
 import pytest
 
-from helpers import run_image, wait_for_proc
-
-# Helper functions to get config values from support scripts
-def get_app_home(container):
-    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${APP_HOME}'"
-    home = container.check_output(cmd)
-    return home
-
-def get_bootstrap_proc(container):
-    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${BOOTSTRAP_PROC}'"
-    proc = container.check_output(cmd)
-    return proc
+from helpers import get_app_home, get_bootstrap_proc, run_image, wait_for_proc
 
 
 def test_thread_dumps(docker_cli, image, run_user):
