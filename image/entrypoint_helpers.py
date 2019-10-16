@@ -71,7 +71,7 @@ def str2bool(v):
 
 def start_app(start_cmd, home_dir, name='app'):
     if os.getuid() == 0:
-        if str2bool(env['set_permissions'] or True):
+        if str2bool(env.get('set_permissions') or True):
             set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
             logging.info(f"User is currently root. Will change directory ownership and downgrade permissions to to {env['run_user']}")
         else:

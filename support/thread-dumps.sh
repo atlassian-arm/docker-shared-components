@@ -25,7 +25,6 @@ set -euo pipefail
 # Set up common vars like APP_NAME, APP_HOME, APP_PID
 SCRIPT_DIR=$(dirname "$0")
 source "${SCRIPT_DIR}/common.sh"
-source "${SCRIPT_DIR}/utils.sh"
 
 # Set up script opts
 set_valid_options "c:i:n" "count:,interval:,no-top"
@@ -57,7 +56,7 @@ if [[ "${NO_TOP}" == "false" ]]; then
 fi
 echo
 
-OUT_DIR="${APP_HOME}/thread_dumps/$(date +'%Y-%m-%d_%H-%M-%S')"
+OUT_DIR="$(get_app_home)/thread_dumps/$(date +'%Y-%m-%d_%H-%M-%S')"
 run_as_runuser mkdir -p ${OUT_DIR}
 
 for i in $(seq ${COUNT}); do

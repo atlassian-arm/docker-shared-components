@@ -7,12 +7,12 @@ import testinfra
 
 # Helper functions to get config values from support scripts
 def get_app_home(container):
-    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${APP_HOME}'"
+    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && get_app_home'"
     home = container.check_output(cmd)
     return home
 
 def get_app_install_dir(container):
-    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && echo ${APP_INSTALL_DIR}'"
+    cmd = "/bin/bash -c 'source /opt/atlassian/support/common.sh && get_app_install_dir'"
     home = container.check_output(cmd)
     return home
 

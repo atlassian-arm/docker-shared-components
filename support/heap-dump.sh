@@ -20,7 +20,6 @@ set -euo pipefail
 # Set up common vars like APP_NAME, APP_HOME, APP_PID
 SCRIPT_DIR=$(dirname "$0")
 source "${SCRIPT_DIR}/common.sh"
-source "${SCRIPT_DIR}/utils.sh"
 
 # Set up script opts
 set_valid_options "f" "force"
@@ -43,7 +42,7 @@ echo "App:       ${APP_NAME}"
 echo "Run user:  ${RUN_USER}"
 echo
 
-OUT_FILE="${APP_HOME}/heap.bin"
+OUT_FILE="$(get_app_home)/heap.bin"
 
 if [[ -f "${OUT_FILE}" ]]; then
     echo "A previous heap dump already exists at ${OUT_FILE}."
