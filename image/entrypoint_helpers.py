@@ -38,6 +38,14 @@ def set_perms(path, user, group, mode):
             shutil.chown(os.path.join(dirpath, filename), user=user, group=group)
             os.chmod(os.path.join(dirpath, filename), mode)
 
+def check_perms(path, uid, gid, mode):
+    stat = os.stat(path)
+    return all([
+        stat.st_uid == uid,
+        stat.st_gid == gid,
+        stat.st_mode & mode == mode
+    ])
+
 def gen_cfg(tmpl, target, user='root', group='root', mode=0o644, overwrite=True):
     if not overwrite and os.path.exists(target):
         logging.info(f"{target} exists; skipping.")
@@ -71,11 +79,11 @@ def str2bool(v):
 
 def start_app(start_cmd, home_dir, name='app'):
     if os.getuid() == 0:
-        if str2bool(env.get('set_permissions') or True):
+        if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
             set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
-            logging.info(f"User is currently root. Will change directory ownership and downgrade permissions to to {env['run_user']}")
+            logging.info(f"User is currently root. Will change directory ownership and downgrade run user to to {env['run_user']}")
         else:
-            logging.info(f"User is currently root. Will downgrade permissions to to {env['run_user']}")
+            logging.info(f"User is currently root. Will downgrade run user to to {env['run_user']}")
         
         cmd = '/bin/su'
         args = [cmd, env['run_user'], '-c', start_cmd]
