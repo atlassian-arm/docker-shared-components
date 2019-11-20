@@ -41,8 +41,8 @@ def set_perms(path, user, group, mode):
 def check_perms(path, uid, gid, mode):
     stat = os.stat(path)
     return all([
-        stat.st_uid == uid,
-        stat.st_gid == gid,
+        stat.st_uid == int(uid),
+        stat.st_gid == int(gid),
         stat.st_mode & mode == mode
     ])
 
