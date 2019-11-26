@@ -56,7 +56,7 @@ def gen_cfg(tmpl, target, user='root', group='root', mode=0o644, overwrite=True)
     try:
         with open(target, 'w') as fd:
             fd.write(cfg)
-    except PermissionError:
+    except (OSError, PermissionError):
         logging.warning(f"Container not started as root. Bootstrapping skipped for '{target}'")
     else:
         set_perms(target, user, group, mode)
