@@ -1,0 +1,41 @@
+image: atlassian/default-image:2
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Auto create PRs
+          script:
+            - >
+              export ACCESS_TOKEN=$(curl -s -X POST -u "${DOCKER_BOT_CLIENT_ID}:${DOCKER_BOT_CLIENT_SECRET}" \
+                  https://bitbucket.org/site/oauth2/access_token \
+                  -d grant_type=client_credentials -d scopes="repository"| jq --raw-output '.access_token')
+            - >
+              function update_shared_components() {
+                  local REPO="$1"
+                  git clone "https://x-token-auth:${ACCESS_TOKEN}@bitbucket.org/${REPO}" ~/${REPO}
+                  cd ~/${REPO}
+                  git checkout -B update-shared-components
+                  git submodule update --init --recursive
+                  git submodule update --recursive --remote
+                  git add .
+                  git -c "user.name=Atlassian Docker Bot" -c "user.email=$DOCKER_BOT_EMAIL" commit -m "Update shared components"
+                  git push --force-with-lease origin update-shared-components
+                  curl "https://api.bitbucket.org/2.0/repositories/${REPO}/pullrequests" \
+                      --request POST \
+                      --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Content-Type: application/json" \
+                      --data '{
+                          "title": "Update shared components",
+                          "close_source_branch": true,
+                          "source": {
+                              "branch": {
+                                  "name": "update-shared-components"
+                              }
+                          }
+                      }'
+              }
+            - update_shared_components atlassian-docker/docker-atlassian-bitbucket-server
+            - update_shared_components atlassian-docker/docker-atlassian-confluence-server
+            - update_shared_components atlassian-docker/docker-atlassian-jira
+            - update_shared_components dchevell/docker-atlassian-crowd
