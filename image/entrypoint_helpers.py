@@ -31,6 +31,8 @@ jenv = j2.Environment(
 # Utils
 
 def set_perms(path, user, group, mode):
+    shutil.chown(path, user=user, group=group)
+    os.chmod(path, mode)
     for dirpath, dirnames, filenames in os.walk(path):
         shutil.chown(dirpath, user=user, group=group)
         os.chmod(dirpath, mode)
