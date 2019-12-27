@@ -61,7 +61,10 @@ def gen_cfg(tmpl, target, user='root', group='root', mode=0o644, overwrite=True)
     except (OSError, PermissionError):
         logging.warning(f"Container not started as root. Bootstrapping skipped for '{target}'")
     else:
-        set_perms(target, user, group, mode)
+        try:
+            set_perms(target, user, group, mode)
+        except (OSError, PermissionError):
+            logging.warning(f"Container not started as root. Cannot alter permissions for '{target}'")
 
 def gen_container_id():
     env['uuid'] = uuid.uuid4().hex
