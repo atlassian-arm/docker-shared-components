@@ -51,4 +51,4 @@ pipelines:
             - update_shared_components atlassian-docker/docker-atlassian-bitbucket-server
             - update_shared_components atlassian-docker/docker-atlassian-confluence-server
             - update_shared_components atlassian-docker/docker-atlassian-jira
-            - update_shared_components dchevell/docker-atlassian-crowd
+            - update_shared_components atlassian-docker/docker-atlassian-crowd
