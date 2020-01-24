@@ -83,9 +83,9 @@ def start_app(start_cmd, home_dir, name='app'):
     if os.getuid() == 0:
         if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
             set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
-            logging.info(f"User is currently root. Will change directory ownership and downgrade run user to to {env['run_user']}")
+            logging.info(f"User is currently root. Will change directory ownership and downgrade run user to {env['run_user']}")
         else:
-            logging.info(f"User is currently root. Will downgrade run user to to {env['run_user']}")
+            logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
         
         cmd = '/bin/su'
         args = [cmd, env['run_user'], '-c', start_cmd]
