@@ -11,14 +11,14 @@ APP_NAME="$(set | grep '_INSTALL_DIR' | awk -F'_' '{print $1}')"
 
 # Get value of <app>_INSTALL_DIR
 function get_app_install_dir {
-    local APP_INSTALL_DIR="$(set | grep ${APP_NAME}_INSTALL_DIR | awk -F'=' '{print $2}')"
-    echo ${APP_INSTALL_DIR}
+    local APP_INSTALL_DIR=${APP_NAME}_INSTALL_DIR
+    echo ${!APP_INSTALL_DIR}
 }
 
 # Get value of <app>_HOME
 function get_app_home {
-    local APP_HOME="$(set | grep ${APP_NAME}_HOME | awk -F'=' '{print $2}')"
-    echo ${APP_HOME}
+    local APP_HOME=${APP_NAME}_HOME
+    echo ${!APP_HOME}
 }
 
 
