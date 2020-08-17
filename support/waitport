@@ -4,7 +4,7 @@ set -e
 
 host=$1
 port=$2
-secs=1200
+secs=120
 
 echo -n "Waiting for TCP connection to $host:$port..."
 
@@ -15,7 +15,7 @@ for i in `seq $secs`; do
     fi
 
     echo -n .
-    /bin/sleep 0.1
+    /bin/sleep 1
 
 done
 
