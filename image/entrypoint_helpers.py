@@ -76,8 +76,9 @@ def str2bool(v):
     return False
 
 def unset_secure_vars:
+    secure_keywords = ('pass', 'secret', 'token')
     for key in os.environ:
-        if 'pass' in key.lower() or 'token' in key.lower():
+        if any(kw in key for kw in secure_keywords):
             del os.environ[key]
 
 
