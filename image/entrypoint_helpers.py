@@ -75,6 +75,11 @@ def str2bool(v):
         return True
     return False
 
+def unset_secure_vars:
+    for key in os.environ:
+        if 'pass' in key.lower() or 'token' in key.lower():
+            del os.environ[key]
+
 
 ######################################################################
 # Application startup utilities
@@ -126,5 +131,6 @@ def start_app(start_cmd, home_dir, name='app'):
         cmd = '/bin/sh'
         args = [cmd, '-c', start_cmd]
 
+    unset_secure_vars()
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
