@@ -77,21 +77,43 @@ def str2bool(v):
 
 
 ######################################################################
-# Start App as the correct user
+
+# Start App as the correct user.
+#
+# * `start_app` takes a string, including arguments. It should be
+#   considered deprecated as it uses a nested shell, which can
+#   interfere with signal handling and clean shutdown.
+#
+# * `exec_app` takes a list of a command and its arguments.
+#
+
+def check_permissions(home_dir):
+    if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
+        set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
+        logging.info(f"User is currently root. Will change directory ownership and downgrade run user to {env['run_user']}")
+    else:
+        logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
 
 def start_app(start_cmd, home_dir, name='app'):
     if os.getuid() == 0:
-        if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
-            set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
-            logging.info(f"User is currently root. Will change directory ownership and downgrade run user to {env['run_user']}")
-        else:
-            logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
-        
+        check_permissions(home_dir)
         cmd = '/bin/su'
         args = [cmd, env['run_user'], '-c', start_cmd]
     else:
         cmd = '/bin/sh'
         args = [cmd, '-c', start_cmd]
+
+    logging.info(f"Running {name} with command '{cmd}', arguments {args}")
+    os.execv(cmd, args)
+
+def exec_app(start_cmd_v, home_dir, name='app'):
+    if os.getuid() == 0:
+        check_permissions(home_dir)
+        cmd = '/bin/su'
+        args = [cmd, env['run_user'], '-c', " ".join(start_cmd_v)]
+    else:
+        cmd = start_cmd_v[0]
+        args = start_cmd_v
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
