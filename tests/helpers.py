@@ -76,3 +76,17 @@ def wait_for_http_response(url, expected_status=200, expected_state=None, max_wa
                 return
         time.sleep(1)
     raise TimeoutError
+
+def wait_for_state(url, expected_state, max_wait=300):
+    timeout = time.time() + max_wait
+    while time.time() < timeout:
+        try:
+            r = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            pass
+        else:
+            state = r.json().get('state')
+            if state == expected_state:
+                return
+        time.sleep(1)
+    raise TimeoutError
