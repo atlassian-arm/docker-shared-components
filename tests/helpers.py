@@ -85,8 +85,12 @@ def wait_for_state(url, expected_state, max_wait=300):
         except requests.exceptions.ConnectionError:
             pass
         else:
-            state = r.json().get('state')
-            if state == expected_state:
-                return
+            try:
+                # Ignore temporary errors
+                state = r.json().get('state')
+                if state == expected_state:
+                    return
+            except:
+                pass
         time.sleep(1)
     raise TimeoutError
