@@ -1,5 +1,6 @@
 
 from iterators import TimeoutIterator
+import re
 import time
 import xml.etree.ElementTree as etree
 
