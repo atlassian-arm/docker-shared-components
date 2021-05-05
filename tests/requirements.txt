@@ -5,6 +5,7 @@ chardet==3.0.4
 docker==4.0.2
 idna==2.8
 importlib-metadata==0.19
+iterators==0.0.2
 more-itertools==7.2.0
 packaging==19.1
 pluggy==0.12.0

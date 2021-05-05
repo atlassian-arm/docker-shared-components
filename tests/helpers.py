@@ -1,3 +1,5 @@
+
+from iterators import TimeoutIterator
 import time
 import xml.etree.ElementTree as etree
 
@@ -76,3 +78,35 @@ def wait_for_http_response(url, expected_status=200, expected_state=None, max_wa
                 return
         time.sleep(1)
     raise TimeoutError
+
+def wait_for_state(url, expected_state, max_wait=300):
+    timeout = time.time() + max_wait
+    while time.time() < timeout:
+        try:
+            r = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            pass
+        else:
+            try:
+                # Ignore temporary errors
+                state = r.json().get('state')
+                if state == expected_state:
+                    return
+            except:
+                pass
+        time.sleep(1)
+    raise TimeoutError
+
+def wait_for_log(container, pattern, timeout=120):
+    rpat = re.compile(pattern)
+    logs = container.logs(stream=True, follow=True)
+    li = TimeoutIterator(logs, timeout=timeout)
+    for line in li:
+        if line == li.get_sentinel():
+            raise TimeoutError(f"Failed to find log line '{pattern}'")
+
+        line = line.decode('UTF-8')
+        if rpat.search(line):
+            return line
+
+    raise EOFError(f"Failed to find log line '{pattern}'")
