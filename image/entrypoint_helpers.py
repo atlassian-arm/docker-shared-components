@@ -75,7 +75,7 @@ def str2bool(v):
         return True
     return False
 
-def unset_secure_vars:
+def unset_secure_vars():
     secure_keywords = ('pass', 'secret', 'token')
     for key in os.environ:
         if any(kw in key for kw in secure_keywords):
@@ -119,7 +119,7 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     os.execv(cmd, args)
 
 
-def start_app(start_cmd, home_dir, name='app', , env_cleanup=False):
+def start_app(start_cmd, home_dir, name='app', env_cleanup=False):
     """Run the supplied application startup command.
 
     DEPRECATED: This function uses a nested shell, which can #
