@@ -101,7 +101,9 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     Arguments:
     start_cmd -- A list of the command and its arguments.
     home_dir -- Application home directory.
-    name -- (Optional) The name to display in the log message."""
+    name -- (Optional) The name to display in the log message.
+    env_cleanup -- (Default: False) Remove possibly sensitive env-vars.
+    """
     if os.getuid() == 0:
         check_permissions(home_dir)
         cmd = '/bin/su'
@@ -117,7 +119,7 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     os.execv(cmd, args)
 
 
-def start_app(start_cmd, home_dir, name='app'):
+def start_app(start_cmd, home_dir, name='app', , env_cleanup=False):
     """Run the supplied application startup command.
 
     DEPRECATED: This function uses a nested shell, which can #
@@ -127,6 +129,7 @@ def start_app(start_cmd, home_dir, name='app'):
     start_cmd -- A single string with the command and arguments.
     home_dir -- Application home directory.
     name -- (Optional) The name to display in the log message.
+    env_cleanup -- (Default: False) Remove possibly sensitive env-vars.
     """
     if os.getuid() == 0:
         check_permissions(home_dir)
