@@ -75,6 +75,13 @@ def str2bool(v):
         return True
     return False
 
+def unset_secure_vars:
+    secure_keywords = ('pass', 'secret', 'token')
+    for key in os.environ:
+        if any(kw in key for kw in secure_keywords):
+            logging.info(f"Unsetting environment var {key}")
+            del os.environ[key]
+
 
 ######################################################################
 # Application startup utilities
@@ -88,13 +95,15 @@ def check_permissions(home_dir):
         logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
 
 
-def exec_app(start_cmd_v, home_dir, name='app'):
+def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     """Run the supplied application startup command.
 
     Arguments:
     start_cmd -- A list of the command and its arguments.
     home_dir -- Application home directory.
-    name -- (Optional) The name to display in the log message."""
+    name -- (Optional) The name to display in the log message.
+    env_cleanup -- (Default: False) Remove possibly sensitive env-vars.
+    """
     if os.getuid() == 0:
         check_permissions(home_dir)
         cmd = '/bin/su'
@@ -103,11 +112,14 @@ def exec_app(start_cmd_v, home_dir, name='app'):
         cmd = start_cmd_v[0]
         args = start_cmd_v
 
+    if env_cleanup:
+        unset_secure_vars()
+
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
 
 
-def start_app(start_cmd, home_dir, name='app'):
+def start_app(start_cmd, home_dir, name='app', , env_cleanup=False):
     """Run the supplied application startup command.
 
     DEPRECATED: This function uses a nested shell, which can #
@@ -117,6 +129,7 @@ def start_app(start_cmd, home_dir, name='app'):
     start_cmd -- A single string with the command and arguments.
     home_dir -- Application home directory.
     name -- (Optional) The name to display in the log message.
+    env_cleanup -- (Default: False) Remove possibly sensitive env-vars.
     """
     if os.getuid() == 0:
         check_permissions(home_dir)
@@ -125,6 +138,9 @@ def start_app(start_cmd, home_dir, name='app'):
     else:
         cmd = '/bin/sh'
         args = [cmd, '-c', start_cmd]
+
+    if env_cleanup:
+        unset_secure_vars()
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
