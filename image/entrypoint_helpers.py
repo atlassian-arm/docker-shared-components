@@ -79,6 +79,7 @@ def unset_secure_vars:
     secure_keywords = ('pass', 'secret', 'token')
     for key in os.environ:
         if any(kw in key for kw in secure_keywords):
+            logging.info(f"Unsetting environment var {key}")
             del os.environ[key]
 
 
@@ -94,7 +95,7 @@ def check_permissions(home_dir):
         logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
 
 
-def exec_app(start_cmd_v, home_dir, name='app'):
+def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     """Run the supplied application startup command.
 
     Arguments:
@@ -108,6 +109,9 @@ def exec_app(start_cmd_v, home_dir, name='app'):
     else:
         cmd = start_cmd_v[0]
         args = start_cmd_v
+
+    if env_cleanup:
+        unset_secure_vars()
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
@@ -132,6 +136,8 @@ def start_app(start_cmd, home_dir, name='app'):
         cmd = '/bin/sh'
         args = [cmd, '-c', start_cmd]
 
-    unset_secure_vars()
+    if env_cleanup:
+        unset_secure_vars()
+
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
