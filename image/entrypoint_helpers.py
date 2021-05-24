@@ -76,10 +76,10 @@ def str2bool(v):
     return False
 
 def unset_secure_vars():
-    secure_keywords = ('pass', 'secret', 'token')
+    secure_keywords = ('PASS', 'SECRET', 'TOKEN')
     for key in os.environ:
-        if any(kw in key for kw in secure_keywords):
-            logging.info(f"Unsetting environment var {key}")
+        if any(kw in key.upper() for kw in secure_keywords):
+            logging.warning(f"Unsetting environment var {key}")
             del os.environ[key]
 
 
