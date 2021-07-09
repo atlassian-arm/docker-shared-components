@@ -31,14 +31,22 @@ jenv = j2.Environment(
 # Utils
 
 def set_perms(path, user, group, mode):
-    shutil.chown(path, user=user, group=group)
-    os.chmod(path, mode)
+    try:
+        shutil.chown(path, user=user, group=group)
+    except PermissionError:
+        logging.warning(f"Could not chown path {path} to {user}:{group} due to insufficient permissions.")
+
+    try:
+        os.chmod(path, mode)
+    except PermissionError:
+        logging.warning(f"Could not chmod path {path} to {mode} due to insufficient permissions.")
+
+def set_tree_perms(path, user, group, mode):
+    set_perms(path, user, group, mode)
     for dirpath, dirnames, filenames in os.walk(path):
-        shutil.chown(dirpath, user=user, group=group)
-        os.chmod(dirpath, mode)
+        set_perms(path, user, group, mode)
         for filename in filenames:
-            shutil.chown(os.path.join(dirpath, filename), user=user, group=group)
-            os.chmod(os.path.join(dirpath, filename), mode)
+            set_perms(path, user, group, mode)
 
 def check_perms(path, uid, gid, mode):
     stat = os.stat(path)
@@ -61,7 +69,7 @@ def gen_cfg(tmpl, target, user='root', group='root', mode=0o644, overwrite=True)
     except (OSError, PermissionError):
         logging.warning(f"Container not started as root. Bootstrapping skipped for '{target}'")
     else:
-        set_perms(target, user, group, mode)
+        set_tree_perms(target, user, group, mode)
 
 def gen_container_id():
     env['uuid'] = uuid.uuid4().hex
@@ -89,7 +97,7 @@ def unset_secure_vars():
 def check_permissions(home_dir):
     """Ensure the home directory is set to minimal permissions"""
     if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
-        set_perms(home_dir, env['run_user'], env['run_group'], 0o700)
+        set_tree_perms(home_dir, env['run_user'], env['run_group'], 0o700)
         logging.info(f"User is currently root. Will change directory ownership and downgrade run user to {env['run_user']}")
     else:
         logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
