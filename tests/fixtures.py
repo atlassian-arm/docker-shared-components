@@ -10,6 +10,7 @@ DOCKERFILE = os.environ.get('DOCKERFILE') or 'Dockerfile'
 DOCKERFILE_BUILDARGS = os.environ.get('DOCKERFILE_BUILDARGS')
 DOCKERFILE_VERSION_ARG = os.environ.get('DOCKERFILE_VERSION_ARG')
 MAC_PRODUCT_KEY = os.environ.get('MAC_PRODUCT_KEY') or 'docker-testapp'
+APP_TEST_VERSION = os.environ.get('APP_TEST_VERSION') # Optional override
 
 
 def parse_buildargs(buildargs):
@@ -20,7 +21,9 @@ def parse_buildargs(buildargs):
 
 def make_image():
     buildargs = parse_buildargs(DOCKERFILE_BUILDARGS)
-    if MAC_PRODUCT_KEY != 'docker-testapp':
+    if APP_TEST_VERSION:
+        buildargs[DOCKERFILE_VERSION_ARG] = APP_TEST_VERSION
+    elif MAC_PRODUCT_KEY != 'docker-testapp':
         r = requests.get(f'https://marketplace.atlassian.com/rest/2/products/key/{MAC_PRODUCT_KEY}/versions/latest')
         version = r.json().get('name')
         buildargs[DOCKERFILE_VERSION_ARG] = version
@@ -28,6 +31,7 @@ def make_image():
     tag = ''.join(ch for ch in DOCKERFILE if ch.isalnum())
     image = docker_cli.images.build(path='.',
                                     tag=f'{MAC_PRODUCT_KEY}:{tag}'.lower(),
+                                    labels={"product_version": buildargs[DOCKERFILE_VERSION_ARG]},
                                     buildargs=buildargs,
                                     dockerfile=DOCKERFILE,
                                     rm=True)[0]
