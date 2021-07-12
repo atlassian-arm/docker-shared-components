@@ -31,6 +31,7 @@ def make_image():
     tag = ''.join(ch for ch in DOCKERFILE if ch.isalnum())
     image = docker_cli.images.build(path='.',
                                     tag=f'{MAC_PRODUCT_KEY}:{tag}'.lower(),
+                                    labels={"product_version": buildargs[DOCKERFILE_VERSION_ARG]},
                                     buildargs=buildargs,
                                     dockerfile=DOCKERFILE,
                                     rm=True)[0]
