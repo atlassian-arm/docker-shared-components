@@ -125,30 +125,3 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
 
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
-
-
-def start_app(start_cmd, home_dir, name='app', env_cleanup=False):
-    """Run the supplied application startup command.
-
-    DEPRECATED: This function uses a nested shell, which can #
-    interfere with signal handling and clean shutdown.
-
-    Arguments:
-    start_cmd -- A single string with the command and arguments.
-    home_dir -- Application home directory.
-    name -- (Optional) The name to display in the log message.
-    env_cleanup -- (Default: False) Remove possibly sensitive env-vars.
-    """
-    if os.getuid() == 0:
-        check_permissions(home_dir)
-        cmd = '/bin/su'
-        args = [cmd, env['run_user'], '-c', start_cmd]
-    else:
-        cmd = '/bin/sh'
-        args = [cmd, '-c', start_cmd]
-
-    if env_cleanup:
-        unset_secure_vars()
-
-    logging.info(f"Running {name} with command '{cmd}', arguments {args}")
-    os.execv(cmd, args)
