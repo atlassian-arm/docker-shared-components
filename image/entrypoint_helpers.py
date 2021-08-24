@@ -103,12 +103,12 @@ def check_permissions(home_dir):
 
 
 def drop_root(run_user):
-    logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
-    pwent = pwd.getpwnam(run_user)
+    logging.info(f"User is currently root. Will downgrade run user to {run_user}")
+    pwd_entry = pwd.getpwnam(run_user)
 
-    os.environ['HOME'] = pwent.pw_dir
-    os.setgid(pwent.pw_gid)
-    os.setuid(pwent.pw_uid)
+    os.environ['HOME'] = pwd_entry.pw_dir
+    os.setgid(pwd_entry.pw_gid)
+    os.setuid(pwd_entry.pw_uid)
 
 
 def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
