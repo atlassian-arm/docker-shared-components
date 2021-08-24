@@ -1,5 +1,6 @@
 import sys
 import os
+import pwd
 import shutil
 import logging
 import jinja2 as j2
@@ -99,8 +100,15 @@ def check_permissions(home_dir):
     if str2bool(env.get('set_permissions') or True) and check_perms(home_dir, env['run_uid'], env['run_gid'], 0o700) is False:
         set_tree_perms(home_dir, env['run_user'], env['run_group'], 0o700)
         logging.info(f"User is currently root. Will change directory ownership and downgrade run user to {env['run_user']}")
-    else:
-        logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
+
+
+def drop_root(run_user):
+    logging.info(f"User is currently root. Will downgrade run user to {env['run_user']}")
+    pwent = pwd.getpwnam(run_user)
+
+    os.environ['HOME'] = pwent.pw_dir
+    os.setgid(pwent.pw_gid)
+    os.setuid(pwent.pw_uid)
 
 
 def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
@@ -114,11 +122,10 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     """
     if os.getuid() == 0:
         check_permissions(home_dir)
-        cmd = '/bin/su'
-        args = [cmd, env['run_user'], '-c', " ".join(start_cmd_v)]
-    else:
-        cmd = start_cmd_v[0]
-        args = start_cmd_v
+        drop_root(env['run_user'])
+
+    cmd = start_cmd_v[0]
+    args = start_cmd_v
 
     if env_cleanup:
         unset_secure_vars()
