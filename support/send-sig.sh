@@ -15,6 +15,5 @@ if [[ "$WAIT" != "wait" ]]; then
 fi
 
 while [[ -e /proc/$APP_PID ]]; do
-    echo wait
     /bin/sleep 0.5
 done
