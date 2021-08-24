@@ -106,7 +106,10 @@ def drop_root(run_user):
     logging.info(f"User is currently root. Will downgrade run user to {run_user}")
     pwd_entry = pwd.getpwnam(run_user)
 
+    os.environ['USER'] = run_user
     os.environ['HOME'] = pwd_entry.pw_dir
+    os.environ['SHELL'] = pwd_entry.pw_shell
+    os.environ['LOGNAME'] = run_user
     os.setgid(pwd_entry.pw_gid)
     os.setuid(pwd_entry.pw_uid)
 
