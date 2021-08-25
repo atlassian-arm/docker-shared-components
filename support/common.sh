@@ -23,17 +23,20 @@ function get_app_home {
 
 
 # Get app PID
-case "${APP_NAME}" in
-    BITBUCKET )
-        BOOTSTRAP_PROC="com.atlassian.bitbucket.internal.launcher.BitbucketServerLauncher"
-        ;;
-    * )
-        BOOTSTRAP_PROC="org.apache.catalina.startup.Bootstrap"
-        ;;
-esac
-
-APP_PID=$(${JCMD} | grep "${BOOTSTRAP_PROC}" | awk '{print $1}')
-
+PIDFILE="$(get_app_home)/docker-app.pid"
+if [[ -f $PIDFILE ]]; then
+    APP_PID=$(<$PIDFILE)
+else
+    case "${APP_NAME}" in
+        BITBUCKET )
+            BOOTSTRAP_PROC="com.atlassian.bitbucket.internal.launcher.BitbucketServerLauncher"
+            ;;
+        * )
+            BOOTSTRAP_PROC="org.apache.catalina.startup.Bootstrap"
+            ;;
+    esac
+    APP_PID=$(${JCMD} | grep "${BOOTSTRAP_PROC}" | awk '{print $1}')
+fi
 
 
 # Set valid getopt options
