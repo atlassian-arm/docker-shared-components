@@ -57,6 +57,6 @@ if [[ -f "${OUT_FILE}" ]]; then
 fi
 
 echo "Generating heap dump"
-run_as_runuser ${JCMD} ${APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null
+run_as_runuser ${JCMD} ${JVM_APP_PID} GC.heap_dump -all ${OUT_FILE} > /dev/null
 echo
 echo "Heap dump has been written to ${OUT_FILE}"

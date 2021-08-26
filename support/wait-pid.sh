@@ -6,8 +6,8 @@
 
 set -e
 
-APP_PID=$1
+WAIT_PID=$1
 
-while [[ -e /proc/${APP_PID} ]]; do
+while [[ -e /proc/${WAIT_PID} ]]; do
     /bin/sleep 0.5
 done
