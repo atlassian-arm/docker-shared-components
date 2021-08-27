@@ -14,10 +14,9 @@ SHDIR=$(dirname $0)
 
 source ${SHDIR}/common.sh
 
-kill -${SIG} ${APP_PID}
+kill -${SIG} ${JVM_APP_PID}
 
-if [[ "${WAIT}" != "wait" ]]; then
-    exit 0
+if [[ "${WAIT}" == "wait" ]]; then
+    ${SHDIR}/wait-pid.sh $JVM_APP_PID
 fi
 
-${SHDIR}/wait-pid.sh
