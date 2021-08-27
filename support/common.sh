@@ -9,6 +9,15 @@ JCMD="${JAVA_HOME}/bin/jcmd"
 # Set up app info
 APP_NAME="$(set | grep '_INSTALL_DIR' | awk -F'_' '{print $1}')"
 
+case "${APP_NAME}" in
+    BITBUCKET )
+        BOOTSTRAP_PROC="com.atlassian.bitbucket.internal.launcher.BitbucketServerLauncher"
+        ;;
+    * )
+        BOOTSTRAP_PROC="org.apache.catalina.startup.Bootstrap"
+        ;;
+esac
+
 # Get value of <app>_INSTALL_DIR
 function get_app_install_dir {
     local APP_INSTALL_DIR=${APP_NAME}_INSTALL_DIR
@@ -21,19 +30,16 @@ function get_app_home {
     echo ${!APP_HOME}
 }
 
-
-# Get app PID
-case "${APP_NAME}" in
-    BITBUCKET )
-        BOOTSTRAP_PROC="com.atlassian.bitbucket.internal.launcher.BitbucketServerLauncher"
-        ;;
-    * )
-        BOOTSTRAP_PROC="org.apache.catalina.startup.Bootstrap"
-        ;;
-esac
-
-APP_PID=$(${JCMD} | grep "${BOOTSTRAP_PROC}" | awk '{print $1}')
-
+# Get app PID. APP_PID is the root process. JVM_APP_PID will generally
+# be the same as APP_PID; the exception is Bitbucket running with
+# Elasticsearch enabled.
+JVM_APP_PID=$(${JCMD} | grep "${BOOTSTRAP_PROC}" | awk '{print $1}')
+PIDFILE="$(get_app_home)/docker-app.pid"
+if [[ -f $PIDFILE ]]; then
+    APP_PID=$(<$PIDFILE)
+else
+    APP_PID=$JVM_APP_PID
+fi
 
 
 # Set valid getopt options

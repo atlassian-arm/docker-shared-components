@@ -62,9 +62,9 @@ run_as_runuser mkdir -p ${OUT_DIR}
 for i in $(seq ${COUNT}); do
     echo "Generating thread dump ${i} of ${COUNT}"
     if [[ "${NO_TOP}" == "false" ]]; then
-        run_as_runuser top -b -H -p $APP_PID -n 1 > "${OUT_DIR}/${APP_NAME}_CPU_USAGE.$(date +%s).txt"
+        run_as_runuser top -b -H -p $JVM_APP_PID -n 1 > "${OUT_DIR}/${APP_NAME}_CPU_USAGE.$(date +%s).txt"
     fi
-    run_as_runuser ${JCMD} ${APP_PID} Thread.print -l > "${OUT_DIR}/${APP_NAME}_THREADS.$(date +%s).txt"
+    run_as_runuser ${JCMD} ${JVM_APP_PID} Thread.print -l > "${OUT_DIR}/${APP_NAME}_THREADS.$(date +%s).txt"
     if [[ ! "${i}" == "${COUNT}" ]]; then
         sleep ${INTERVAL}
     fi

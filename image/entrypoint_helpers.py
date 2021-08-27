@@ -114,6 +114,14 @@ def drop_root(run_user):
     os.setuid(pwd_entry.pw_uid)
 
 
+def write_pidfile():
+    app_home = env[f"{env['app_name'].lower()}_home"]
+    pidfile = f"{app_home}/docker-app.pid"
+    with open(pidfile, 'wt', encoding='utf-8') as fd:
+        pid = os.getpid()
+        fd.write(str(pid))
+
+
 def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
     """Run the supplied application startup command.
 
@@ -127,11 +135,12 @@ def exec_app(start_cmd_v, home_dir, name='app', env_cleanup=False):
         check_permissions(home_dir)
         drop_root(env['run_user'])
 
-    cmd = start_cmd_v[0]
-    args = start_cmd_v
+    write_pidfile()
 
     if env_cleanup:
         unset_secure_vars()
 
+    cmd = start_cmd_v[0]
+    args = start_cmd_v
     logging.info(f"Running {name} with command '{cmd}', arguments {args}")
     os.execv(cmd, args)
