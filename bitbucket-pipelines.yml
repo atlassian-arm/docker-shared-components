@@ -8,4 +8,4 @@ pipelines:
           script:
             - apt-get update
             - apt-get install -y python3-pytest python3-jinja2
-            - py.test image/tests.py
+            - pytest-3 image/tests.py
