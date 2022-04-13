@@ -6,5 +6,6 @@ pipelines:
       - step:
           name: Run local tests
           script:
-            - pip3 install -r tests/requirements-3.9.txt
+            - apt-get update
+            - apt-get install -y python3-pytest python3-jinja2
             - py.test image/tests.py
