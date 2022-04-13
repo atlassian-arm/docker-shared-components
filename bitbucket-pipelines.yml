@@ -1,0 +1,10 @@
+image: python:3-slim-bullseye
+
+pipelines:
+  branches:
+    '**':
+      - step:
+          name: Run local tests
+          script:
+            - pip3 install pytest
+            - py.test image/tests.py
