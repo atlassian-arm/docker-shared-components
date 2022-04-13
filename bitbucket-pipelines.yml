@@ -1,4 +1,4 @@
-image: python:3-slim-bullseye
+image: python:3.9-slim-bullseye
 
 pipelines:
   branches:
@@ -6,5 +6,5 @@ pipelines:
       - step:
           name: Run local tests
           script:
-            - pip3 install pytest
+            - pip3 install -r tests/requirements-3.9.txt
             - py.test image/tests.py
