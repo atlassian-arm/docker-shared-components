@@ -79,10 +79,18 @@ def gen_container_id():
         if lcid != '':
             env['local_container_id'] = lcid
 
-def str2bool(v):
-    if str(v).lower() in ('yes', 'true', 't', 'y', '1'):
+def str2bool(s):
+    if str(s).lower() in ('yes', 'true', 't', 'y', '1'):
         return True
     return False
+
+def str2bool_or(s, default):
+    # If the string is set, interpret it as a bool, or fallback to a
+    # default.
+    if s == None:
+        return default
+    else:
+        return str2bool(s)
 
 def unset_secure_vars():
     secure_keywords = ('PASS', 'SECRET', 'TOKEN')
