@@ -13,6 +13,9 @@ case "${APP_NAME}" in
     BITBUCKET )
         BOOTSTRAP_PROC="com.atlassian.bitbucket.internal.launcher.BitbucketServerLauncher"
         ;;
+    MESH )
+        BOOTSTRAP_PROC="mesh-app.jar"
+        ;;
     * )
         BOOTSTRAP_PROC="org.apache.catalina.startup.Bootstrap"
         ;;
