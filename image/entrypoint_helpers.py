@@ -94,8 +94,22 @@ def str2bool_or(s, default):
 
 def unset_secure_vars():
     secure_keywords = ('PASS', 'SECRET', 'TOKEN')
-    for key in os.environ:
-        if any(kw in key.upper() for kw in secure_keywords):
+    # users can pass a comma separated list of env vars to whitelist and skip unsetting
+    whitelisted_vars = os.environ.get("ATL_WHITELIST_SENSITIVE_ENV_VARS", "").split(",")
+
+    # add known non-sensitive env vars that have secure_keywords in their names
+    # typically such env vars point to files containing sensitive data
+    patterns = [
+        r"com_atlassian_db_config_password_ciphers_algorithm_javax_crypto",
+        r"AWS_WEB_IDENTITY_TOKEN_FILE",
+    ] + [re.escape(var.strip()) for var in whitelisted_vars if var.strip()]
+
+    # starts with regex
+    combined_pattern = r"^(?:" + "|".join(patterns) + ")"
+    exception_prefix_regex = re.compile(combined_pattern, re.IGNORECASE)
+
+    for key in list(os.environ.keys()):
+        if any(kw in key.upper() for kw in secure_keywords) and not exception_prefix_regex.match(key):
             logging.warning(f"Unsetting environment var {key}")
             del os.environ[key]
 
